@@ -9,11 +9,26 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+import json
 import os
+
+import sys
+
+# DEBUG = (len(sys.argv) > 1 and sys.argv[1] == 'runserver')
+DEBUG = (len(sys.argv) > 1)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+CONF_DIR = os.path.join(ROOT_DIR, '.django-conf')
+STATIC_ROOT = os.path.join(ROOT_DIR, 'static_root')
+
+
+if DEBUG:
+    config = json.loads(open(os.path.join(CONF_DIR, 'settings_debug.json')).read())
+else:
+    config = json.loads(open(os.path.join(CONF_DIR, 'settings_deploy.json')).read())
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,7 +38,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'kt8tetx-$sk#ep)faax!)dl8r*963dl-^2$@a92817m#g*thyp'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -73,13 +88,15 @@ WSGI_APPLICATION = 'photodiary.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
-
+else:
+    DATABASES = config['databases']
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
